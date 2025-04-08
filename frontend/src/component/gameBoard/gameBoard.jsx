@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { io } from "socket.io-client";
+import { useNavigate } from "react-router";
+import LandingPage from "../LandingPage";
 
-const socket = io("https://real-time-tic-toe-game.onrender.com"); // Use deployed backend URL
+
+const socket = io(`${process.env.REACT_APP_API_URL}`); // Use deployed backend URL
 
 const GamePage = () => {
+  const navigate = useNavigate()
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXTurn, setIsXTurn] = useState(true);
   const [roomId, setRoomId] = useState(localStorage.getItem("roomId"));
+  const [chance, setChance] = useState(true);
   const [name, setName] = useState({
-    firstPlayer: localStorage.getItem("firstplayer") || "Player1",
-    secondPlayer: localStorage.getItem("secondPlayer") || "Player2",
+    firstPlayer: localStorage.getItem("playername1") || null,
+    secondPlayer: localStorage.getItem("playername2") || null,
   });
+  
 
   const handleClick = (index) => {
     if (board[index] || checkWinner()) return;
@@ -20,6 +26,7 @@ const GamePage = () => {
     newBoard[index] = isXTurn ? "X" : "O";
     setBoard(newBoard);
     setIsXTurn(!isXTurn);
+    setChance(false);
 
     socket.emit("makeMove", { roomId, board: newBoard, isXTurn: !isXTurn });
   };
@@ -48,30 +55,44 @@ const GamePage = () => {
   const winner = checkWinner();
 
   useEffect(() => {
-    socket.emit("joinroom", {
-      roomId,
-      firstPlayer: name.firstPlayer,
-      secondPlayer: name.secondPlayer,
-    });
-    socket.on("updateName", ({ firstPlayer, secondPlayer }) => {
+  
+    socket.emit("joinroom",
+      {roomId,user:localStorage.getItem("playername")}
+    );
+
+    socket.on("existingUser", (existinguser) => {
+      console.log("name",existinguser)
+      localStorage.setItem("playername1", existinguser[0]);
+      localStorage.setItem("playername2", existinguser[1]);
+    
       setName({
-        firstPlayer: firstPlayer,
-        secondPlayer: secondPlayer,
+        firstPlayer: existinguser[0],
+        secondPlayer: existinguser[1],
       });
-      localStorage.setItem("firstplayer", firstPlayer);
-      localStorage.setItem("secondPlayer", secondPlayer);
     });
+    
+    
+    // socket.on("userJoined",(name)=>{
+    //   localStorage.set("playername",name)
+    // })
     socket.on("updateGame", ({ board, isXTurn }) => {
       setBoard(board);
       setIsXTurn(isXTurn);
     });
+
+    socket.on("updateChance",(chance)=>{
+      setChance(chance);
+      console.log("chance",chance)
+    })
 
     return () => {
       socket.off("updateGame");
     };
   }, []);
 
+
   return (
+    (roomId ? 
     <Container>
       <RoomIdTop>Room: {roomId}</RoomIdTop>
 
@@ -89,12 +110,10 @@ const GamePage = () => {
           <Square
             key={index}
             onClick={() => {
-              if (isXTurn) {
+              if (chance) {
                 handleClick(index);
               }
-              if(!isXTurn){
-                handleClick(index);
-              }
+              
             }}
             value={value}
           >
@@ -115,14 +134,13 @@ const GamePage = () => {
         </WinnerMessage>
       )}
 
-      <ResetButton onClick={() => socket.emit("resetgame", roomId)}>
+      <ResetButton onClick={() => socket.emit("resetgame", {roomId,isXTurn})}>
         Restart Game
       </ResetButton>
 
       <Footer>Developed 💚 by Ajay Pratap Singh</Footer>
     </Container>
-  );
-};
+  :<LandingPage /> ))};
 
 export default GamePage;
 

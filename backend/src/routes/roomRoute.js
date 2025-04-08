@@ -8,7 +8,7 @@ roomRouter.post('/roomCreate',async(req,res)=>{
     const {playerFirst} = req.body;
   
     try {
-        const newRoom = await Room.create({ firstPlayer: playerFirst });
+        const newRoom = await Room.create({ roomId:Math.floor(100000 + Math.random() * 900000),firstPlayer: playerFirst });
         console.log("✅ Room Created:", newRoom);
         return res.status(201).json({success:true, msg:"successfully Room created", data:newRoom})
          // Returns the created document

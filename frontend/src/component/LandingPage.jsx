@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router";
 
 const LandingPage = () => {
+  const API_URL=process.env.REACT_APP_API_URL;
   let params = useParams();
   const [mode, setMode] = useState(null);
   const [playerFirst, setPlayerFirst] = useState(null);
@@ -17,16 +18,17 @@ const LandingPage = () => {
   const navigation = useNavigate();
 
   const onhandleCreateRoom = async () => {
+    console.log("url",`${API_URL}/api/roomCreate`)
     try {
       const output = await axios.post(
-        `https://real-time-tic-toe-game.onrender.com/api/roomCreate`,
+        `${API_URL}/api/roomCreate`,
         { playerFirst }
       );
 
       const room = output.data.data.roomId;
       setRoomId(room);
       localStorage.setItem("roomId", room);
-      localStorage.setItem("firstplayer", output.data.data.firstPlayer);
+      localStorage.setItem("playername", output.data.data.firstPlayer);
       setShowPopup(true);
 
       // Auto close after 10 seconds
@@ -40,7 +42,7 @@ const LandingPage = () => {
   };
 
   const handleClosePopup = () => {
-    setShowPopup(false);
+    // setShowPopup(false);
     navigation(`/gamepage`);
   };
 
@@ -56,14 +58,14 @@ const LandingPage = () => {
   const onhandleJoinRoom = async () => {
     try {
       const output = await axios.post(
-        `https://real-time-tic-toe-game.onrender.com/api/joinRoom`,
+        `${API_URL}/api/joinRoom`,
         {
           playerSecond,
           roomId,
         }
       );
       alert(output.data.msg);
-      localStorage.setItem("secondPlayer", playerSecond);
+      localStorage.setItem("playername", playerSecond);
       localStorage.setItem("roomId", roomId);
       navigation(`/gamepage`);
     } catch (error) {
@@ -138,12 +140,12 @@ const LandingPage = () => {
             </RoomIdBox>
 
             <RoomIdBox>
-              <RoomIdText>{`https://real-time-tic-toe-game.onrender.com/${roomId}`}</RoomIdText>
+              <RoomIdText>{`${API_URL}/${roomId}`}</RoomIdText>
               <CopyButton
                 onClick={() =>
                   onhandleidcopied(
                     "copyLink",
-                    `https://real-time-tic-toe-game.onrender.com/${roomId}`
+                    `${API_URL}/${roomId}`
                   )
                 }
               >
