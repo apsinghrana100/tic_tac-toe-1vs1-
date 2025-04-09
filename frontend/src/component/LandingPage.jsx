@@ -140,12 +140,12 @@ const LandingPage = () => {
             </RoomIdBox>
 
             <RoomIdBox>
-              <RoomIdText>{`${API_URL}/landingpage/${roomId}`}</RoomIdText>
+              <RoomIdText>{`${API_URL}/${roomId}`}</RoomIdText>
               <CopyButton
                 onClick={() =>
                   onhandleidcopied(
                     "copyLink",
-                    `${API_URL}/landingpage/${roomId}`
+                    `${API_URL}/${roomId}`
                   )
                 }
               >
