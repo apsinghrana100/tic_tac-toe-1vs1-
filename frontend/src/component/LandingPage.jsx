@@ -37,7 +37,7 @@ const LandingPage = () => {
         navigation(`/gamepage`);
       }, 10000);
     } catch (error) {
-      alert("Something went wrong");
+      alert("Something went wrong!");
     }
   };
 

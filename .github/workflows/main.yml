@@ -26,6 +26,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: ./backend/Dockerfile
           platforms: linux/amd64,linux/arm64
           build-args: |
           REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}
@@ -33,4 +34,4 @@ jobs:
           PORT=${{ secrets.PORT }}
           FRONTEND_URL=${{ secrets.FRONTEND_URL }}
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/tic-tac-toe:latest
