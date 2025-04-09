@@ -4,6 +4,9 @@ FROM node:18 AS frontend
 # Set working directory for frontend
 WORKDIR /app/frontend
 
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 # Copy only necessary files first (for better caching)
 COPY ../frontend/package*.json ./
 RUN npm install
@@ -30,6 +33,14 @@ COPY --from=frontend /app/frontend/build ./public
 
 # Expose backend port
 EXPOSE 5000
+
+ARG FRONTEND_URL
+ARG PORT
+ARG MONGODB_ATLAS_URI
+
+ENV FRONTEND_URL=$FRONTEND_URL
+ENV PORT=$PORT
+ENV MONGODB_ATLAS_URI=$MONGODB_ATLAS_URI
 
 # Start backend server
 CMD [ "node", "index.js" ]
